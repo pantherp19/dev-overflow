@@ -657,3 +657,235 @@ Now, you can use the custom font in your CSS or Tailwind classes:
 And that’s it! Your Next.js project now uses a custom font from Google Fonts.
 
 ---
+
+# Add Assets to the `public` Folder
+
+1. In your Next.js project, navigate to the public directory. This directory is used for storing static assets that can be served directly, such as images, icons, and documents.
+
+2. Create subfolders within `public` as needed (e.g., images, icons, docs) to keep assets organized.
+
+Example Directory Structure:
+
+```
+
+project-root/
+│
+├── app/
+│ └── favicon.ico
+├── public/
+│ ├── images/
+│ │ └── logo.png
+│ ├── icons/
+│ │ └──
+│ └── docs/
+│ └── guide.pdf
+│
+
+```
+
+3. Copy your assets (e.g., logo.png, favicon.ico) into the appropriate folders within `public`.
+
+---
+
+# Setting Up Metadata in `layout.tsx`
+
+1. Open the `layout.tsx` file in the `app` directory.
+
+2. Define the metadata object to include properties such as `title`, `description`, `icons`, `viewport`, and `openGraph` tags. This metadata will be applied across all pages that use this layout.
+   `
+
+```tsx
+// layout.tsx
+
+import "./globals.css";
+
+export const metadata = {
+  title: "Your Project Title", // Page title
+  description: "Your Project Description", // Meta description for SEO
+  viewport: "width=device-width, initial-scale=1",
+  openGraph: {
+    title: "Your Project Title", // Title for social sharing
+    description: "Your Project Description", // Description for social sharing
+    url: "https://yourdomain.com", // URL of your site
+    siteName: "Your Site Name", // Name of the site
+    images: [
+      {
+        url: "/images/logo.png", // Path to Open Graph image
+        width: 1200,
+        height: 630,
+        alt: "Logo Alt Text",
+      },
+    ],
+    locale: "en_US", // Locale of your site
+    type: "website", // Type of content (e.g., website)
+  },
+  twitter: {
+    card: "summary_large_image", // Twitter card style
+    site: "@YourTwitterHandle", // Twitter username of site
+    creator: "@CreatorTwitterHandle", // Twitter username of content creator
+  },
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <head>
+        <link rel="icon" href="/icons/favicon.ico" /> {/_ Favicon _/}
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+3. Replace values such as `Your Project Title`, `Your Project Description`, and `https://yourdomain.com` with your actual project details. The Open Graph image (`/images/logo.png`) should be one that represents your site and fits Open Graph size requirements (recommended 1200x630 pixels).
+
+4. The metadata defined in `layout.tsx` will be applied across all pages by default. If you need page-specific metadata, you can override it within individual page files.
+
+---
+
+## Tips for Managing Metadata and Assets
+
+- Use Consistent Paths: Always reference paths starting from the `public` folder by using `/` at the beginning of the path.
+
+- **SEO Best Practices**: Customize metadata for better SEO and social media sharing, ensuring that title and description reflect your page content accurately.
+
+---
+
+# Setting Up `next-themes` in a `Next.js` Project
+
+## Step 1: `next-themes` is a library for managing themes in `Next.js`, enabling features like dark mode or custom themes with minimal setup.
+
+Step 1: Install `next-themes`
+
+Run the following command in your Next.js project directory to install `next-themes`:
+
+```bash
+Copy code
+npm install next-themes
+
+# or
+
+yarn add next-themes
+```
+
+---
+
+## Step 2: Setup Theme Provider in `Theme.tsx`
+
+Open `Theme.tsx` in your context directory at root.
+
+Import and wrap the application with the `ThemeProvider` from `next-themes`.
+
+```tsx
+// Theme.tsx
+
+"use client";
+
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { ThemeProviderProps } from "next-themes/dist/types";
+import React from "react";
+
+const ThemeProvider = ({ children, ...props }: ThemeProviderProps) => {
+  return (
+    <>
+      <NextThemesProvider {...props}>{children}</NextThemesProvider>
+    </>
+  );
+};
+
+export default ThemeProvider;
+```
+
+## Step 3: Import and Setup `ThemeProvider` in `layout.tsx`
+
+- attribute="class": This sets the theme using a class on the html element (recommended).
+
+- defaultTheme="system": Sets the default theme based on the user's OS preference
+
+```tsx
+return (
+  // suppressHydrationWarning to avoid rendering warning
+
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className={`${inter.className} ${spaceGrotesk.variable} antialiased`}
+      >
+ // inshore children inside a <ThemeProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
+      </body>
+    </html>
+  );
+```
+
+---
+
+---
+
+# Use `shadcn` for ui design
+
+## Step 1: Run the init command:
+
+```bash
+npx shadcn@latest init
+```
+
+You can use the -d flag for defaults i.e `new-york`, `zinc` and yes for the `css variables`.
+
+```bash
+npx shadcn@latest init -d
+```
+
+---
+
+## Step 2:Configure `components.json`
+
+You will be asked a few questions to configure components.json:
+
+- Which style would you like to use? › New York
+
+- Which color would you like to use as base color? › Zinc
+
+- Do you want to use CSS variables for colors? › no / yes
+
+That's it
+
+---
+
+## Step 3: You can now start adding components to your project.
+
+```bash
+npx shadcn@latest add button
+```
+
+The command above will add the Button component to your project. You can then import it like this:
+
+```
+import { Button } from "@/components/ui/button"
+
+export default function Home() {
+return (
+
+<div>
+<Button>Click me</Button>
+</div>
+)
+}
+```
+
+---
+
+# We Are Ready to Develop Project Now
+
+## Step 1: Start Developing Your Navbar
