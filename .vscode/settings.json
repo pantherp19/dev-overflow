@@ -29,5 +29,12 @@
   "[markdown]": {
     "editor.formatOnSave": true,
     "editor.formatOnPaste": true
+  },
+  "files.exclude": {
+    "**/.git": true,
+    "**/.vscode": true,
+    "**/.next": true,
+    "**/node_modules": true,
+    "next-env.d.ts": true
   }
 }

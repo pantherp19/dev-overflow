@@ -168,36 +168,49 @@ The `.vscode` folder allows you to define workspace-specific settings, extension
 1. Inside the `.vscode` folder, create a file named `settings.json`.
 2. Add your project-specific settings:
 
-   ```json
-   {
-     "editor.defaultFormatter": "esbenp.prettier-vscode",
-     "editor.formatOnSave": true,
-     "editor.codeActionsOnSave": {
-       "source.fixAll.eslint": "explicit",
-       "source.addMissingImports": "explicit"
-     },
-     "prettier.tabWidth": 2,
-     "prettier.useTabs": false,
-     "prettier.semi": true,
-     "prettier.singleQuote": false,
-     "prettier.jsxSingleQuote": false,
-     "prettier.trailingComma": "es5",
-     "prettier.arrowParent": "always",
-     "[json]": {
-       "editor.defaultFormatter": "esbenp.prettier-vscode"
-     },
-     "[typescript]": {
-       "editor.defaultFormatter": "esbenp.prettier-vscode"
-     },
-     "[typescriptreact]": {
-       "editor.defaultFormatter": "esbenp.prettier-vscode"
-     },
-     "[javascriptreact]": {
-       "editor.defaultFormatter": "esbenp.prettier-vscode"
-     },
-     "typescript.tsdk": "node_modules/typescript/lib"
-   }
-   ```
+```json
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.markdownlint": "explicit",
+    "source.addMissingImports": "explicit"
+  },
+  "prettier.tabWidth": 2,
+  "prettier.useTabs": false,
+  "prettier.semi": true,
+  "prettier.singleQuote": false,
+  "prettier.jsxSingleQuote": false,
+  "prettier.trailingComma": "es5",
+  "prettier.arrowParens": "always",
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "[markdown]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true
+  },
+  // this will hide the folders and files
+  "files.exclude": {
+    "**/.git": true,
+    "**/.vscode": true,
+    "**/.next": true,
+    "**/node_modules": true,
+    "next-env.d.ts": true
+  }
+}
+```
 
 Save the file. These settings will now apply only to this project.
 
@@ -519,3 +532,128 @@ code {
 }
 
 ```
+
+---
+
+# Setting Up a Custom Fonts in Next.js
+
+This guide will walk you through setting up a custom font in your Next.js project. We will use Google Fonts as the font source.
+
+---
+
+## Step 1: Download the Font
+
+1. Go to Google Fonts.
+
+2. Select the font you want to use.
+
+3. Click on the Download family button.
+
+4. Once the font is downloaded, unzip the file to access the .ttf or .woff files.
+
+---
+
+## Step 2: Create a Fonts Folder
+
+1. In your `Next.js` project, navigate to the `app` directory.
+2. Create a folder named fonts if it doesn’t exist.
+
+3. Copy the font file(s) (for example, `FontNameVF.ttf`) into this fonts folder.
+
+Your directory structure should look like this:
+
+```
+project-root/
+│
+├── app/
+│   └── fonts/
+│       └── FontNameVF.ttf
+│
+```
+
+---
+
+## Step 3: Update layout.tsx to Use the Font
+
+1. Open layout.tsx in the app directory.
+
+2. Add the font file using the Next.js const variable component.
+
+```tsx
+// layout.tsx
+
+import type { Metadata } from "next";
+import localFont from "next/font/local";
+import React from "react";
+import "./globals.css";
+
+// create font variables
+
+const inter = localFont({
+  src: "./fonts/InterVF.ttf",
+  variable: "--font-inter",
+  weight: "100 200 300 400 500 600 700 800 900",
+});
+
+const spaceGrotesk = localFont({
+  src: "./fonts/SpaceGroteskVF.ttf",
+  variable: "--font-space-grotesk",
+  weight: "300 400 500 600 700",
+});
+
+export const metadata: Metadata = {
+  title: "Dev Overflow",
+  description: "The updated version of stack overflow",
+};
+
+// use font variables in body tag
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body
+        className={`${inter.className} ${spaceGrotesk.variable} antialiased`}
+      >
+        {children}
+      </body>
+    </html>
+  );
+}
+```
+
+---
+
+## Step 4: Update `tailwind.config.js` to Include the Font
+
+1. Open the `tailwind.config.js` file in the root of your project.
+
+2. Add the font to the `extend` section below the `screens`, under `fontFamily` to use it in Tailwind CSS classes.
+
+```js
+// tailwind.config.js
+
+fontFamily: {
+        inter: ["var(--font-inter)"],
+        "space-grotesk": ["var(--font-space-grotesk)"],
+      },
+```
+
+---
+
+## Step 5: Apply the Font in Your Project
+
+Now, you can use the custom font in your CSS or Tailwind classes:
+
+```html
+<div className="font-space-grotesk">
+  This text will use the custom font you have added.
+</div>
+```
+
+And that’s it! Your Next.js project now uses a custom font from Google Fonts.
+
+---
