@@ -182,7 +182,7 @@ The `.vscode` folder allows you to define workspace-specific settings, extension
      "prettier.singleQuote": false,
      "prettier.jsxSingleQuote": false,
      "prettier.trailingComma": "es5",
-     "prettier.arrowParens": "always",
+     "prettier.arrowParent": "always",
      "[json]": {
        "editor.defaultFormatter": "esbenp.prettier-vscode"
      },
@@ -312,3 +312,210 @@ After installing the extensions, reload Visual Studio Code to apply all changes:
 You’re all set! Your environment is now configured and ready for development.
 
 ---
+
+# Tailwind CSS Configuration Guide
+
+This guide walks you through setting up a `tailwind.config.ts` file, which enables you to customize Tailwind CSS settings for your project.
+
+## Step 1: Example of a Complete tailwind.config.ts File
+
+Here’s a full example of a `tailwind.config.ts` file:
+
+```json
+
+import type { Config } from "tailwindcss";
+
+const config: Config = {
+  darkMode: ["class"],
+  content: [
+    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          "100": "#FFF1E6",
+          "500": "#FF7000",
+        },
+        dark: {
+          "100": "#000000",
+          "200": "#0F1117",
+          "300": "#151821",
+          "400": "#212734",
+          "500": "#101012",
+        },
+        light: {
+          "400": "#858EAD",
+          "500": "#7B8EC8",
+          "700": "#DCE3F1",
+          "800": "#F4F6F8",
+          "850": "#FDFDFD",
+          "900": "#FFFFFF",
+        },
+      },
+      borderRadius: {
+        "2": "8px",
+        "1.5": "6px",
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        "light-100":
+          "0px 12px 20px 0px rgba(184, 184, 184, 0.03),
+           0px 6px 12px 0px rgba(184, 184, 184, 0.02),
+            0px 2px 4px 0px rgba(184, 184, 184, 0.03)",
+        "light-200":
+        "10px 10px 20px 0px rgba(218, 213, 213, 0.10)",
+        "light-300":
+        "-10px 10px 20px 0px rgba(218, 213, 213, 0.10)",
+        "dark-100":
+        "0px 2px 10px 0px rgba(46, 52, 56, 0.10)",
+        "dark-200":
+        "2px 0px 20px 0px rgba(39, 36, 36, 0.04)",
+      },
+      backgroundImage: {
+        "auth-dark": 'url("/images/auth-dark.png")',
+        "auth-light": 'url("/images/auth-light.png")',
+      },
+      screens: {
+        xs: "420px",
+      },
+      fontFamily: {
+        inter: ["var(--font-inter)"],
+        "space-grotesk": ["var(--font-space-grotesk)"],
+      },
+    },
+  },
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
+};
+
+export default config;
+```
+
+---
+
+## Step 2: Add Utility Classes in `Globals.css`
+
+Eg:
+
+```json
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
+  }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 3px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #ffffff;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 50px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.active-theme {
+  filter: invert(53%) sepia(98%) saturate(3332%) hue-rotate(0deg)
+    brightness(104%) contrast(106%) !important;
+}
+
+.hash-span {
+  margin-top: -140px;
+  padding-bottom: 140px;
+  display: block;
+}
+
+.mdxeditor-toolbar {
+  background: #ffffff !important;
+}
+
+.dark .mdxeditor-toolbar {
+  background: #151821 !important;
+}
+
+.dark .mdxeditor-toolbar button svg {
+  color: #858ead !important;
+}
+
+.dark .mdxeditor-toolbar button:hover svg {
+  color: #000 !important;
+}
+
+.dark .mdxeditor-toolbar [role="separator"] {
+  border-color: #555 !important;
+}
+
+.markdown a {
+  color: #1da1f2;
+}
+
+.markdown a,
+code {
+  /* These are technically the same, but use both */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  -ms-word-break: break-all;
+  /* This is the dangerous one in WebKit, as it breaks things wherever */
+  word-break: break-all;
+  /* Instead use this non-standard one: */
+  word-break: break-word;
+
+  /* Adds a hyphen where the word breaks, if supported (No Blink) */
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+
+  padding: 2px;
+  color: #ff7000 !important;
+}
+
+.markdown pre {
+  display: grid;
+  width: 100%;
+}
+
+.markdown pre code {
+  width: 100%;
+  display: block;
+  overflow-x: auto;
+
+  color: inherit !important;
+}
+
+[data-lexical-editor="true"] {
+  height: 350px !important;
+  overflow-y: auto !important;
+}
+
+```
