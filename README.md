@@ -1,10 +1,14 @@
-# 1. Next.js Project Setup Guide
-
-This README provides a step-by-step guide for installing and setting up a Next.js project. Follow each section carefully to get your Next.js application up and running!
+# Next.js Project Setup Guide
 
 ---
 
-## Prerequisites
+---
+
+This README provides a step-by-step guide for installing and setting up a `Next.js` project. Follow each section carefully to get your `Next.js` application up and running!
+
+---
+
+# 1. Prerequisites
 
 Before you begin, make sure you have the following installed:
 
@@ -35,6 +39,8 @@ Here’s a quick overview of the key files and folders in your Next.js project:
 - `/public`: Static files (images, fonts, etc.) that can be accessed directly.
 
 - `/styles`: CSS and styling files for your app.
+
+---
 
 ---
 
@@ -141,7 +147,9 @@ git push -u origin main
 
 ---
 
-# Setting Up the `.vscode` Folder in Your Project
+---
+
+# 3. Setting Up the `.vscode` Folder in Your Project
 
 The `.vscode` folder allows you to define workspace-specific settings, extensions, and launch configurations for your Visual Studio Code environment. This guide provides steps to create and configure a `.vscode` folder in your project.
 
@@ -222,7 +230,9 @@ With a .vscode folder, you can streamline your project’s VS Code settings, deb
 
 ---
 
-# 3. ESLint & Prettier Setup
+---
+
+# 4. ESLint & Prettier Setup
 
 ## Step 1: Update `.eslintrc.json` file
 
@@ -326,7 +336,9 @@ You’re all set! Your environment is now configured and ready for development.
 
 ---
 
-# Tailwind CSS Configuration Guide
+---
+
+# 5. Tailwind CSS Configuration Guide
 
 This guide walks you through setting up a `tailwind.config.ts` file, which enables you to customize Tailwind CSS settings for your project.
 
@@ -535,7 +547,9 @@ code {
 
 ---
 
-# Setting Up a Custom Fonts in Next.js
+---
+
+# 6. Setting Up a Custom Fonts in Next.js
 
 This guide will walk you through setting up a custom font in your Next.js project. We will use Google Fonts as the font source.
 
@@ -658,7 +672,9 @@ And that’s it! Your Next.js project now uses a custom font from Google Fonts.
 
 ---
 
-# Add Assets to the `public` Folder
+---
+
+# 7. Add Assets to the `public` Folder
 
 1. In your Next.js project, navigate to the public directory. This directory is used for storing static assets that can be served directly, such as images, icons, and documents.
 
@@ -687,7 +703,9 @@ project-root/
 
 ---
 
-# Setting Up Metadata in `layout.tsx`
+---
+
+# 8. Setting Up Metadata in `layout.tsx`
 
 1. Open the `layout.tsx` file in the `app` directory.
 
@@ -756,11 +774,13 @@ export default function RootLayout({
 
 ---
 
-# Setting Up `next-themes` in a `Next.js` Project
+---
 
-## Step 1: `next-themes` is a library for managing themes in `Next.js`, enabling features like dark mode or custom themes with minimal setup.
+# 9. Setting Up `next-themes` in a `Next.js` Project
 
-Step 1: Install `next-themes`
+`next-themes` is a library for managing themes in `Next.js`, enabling features like dark mode or custom themes with minimal setup.
+
+## Step 1: Install `next-themes`
 
 Run the following command in your Next.js project directory to install `next-themes`:
 
@@ -833,9 +853,9 @@ return (
 
 ---
 
-# Use `shadcn` for ui design
+# 10. Use `shadcn` for ui design
 
-## Step 1: Run the init command:
+## Step 1: Run the `init` command:
 
 ```bash
 npx shadcn@latest init
@@ -886,6 +906,161 @@ return (
 
 ---
 
-# We Are Ready to Develop Project Now
+---
 
-## Step 1: Start Developing Your Navbar
+# 11. Start Developing Your Navbar
+
+This guide explains how to set up a Navbar component in the specified file path for a Next.js or React project.
+
+## Step 1: Create the Folder Structure
+
+Navigate to your project's `root` directory and create the necessary folder structure:
+
+```bash
+- root
+  - components
+    - navigation
+      - navbar
+
+mkdir -p root/components/navigation/navbar
+
+# This command will create the folders and path:
+```
+
+## Step 2: Create the Navbar Component
+
+Inside the navbar folder, create a new file called `index.tsx`:
+
+```bash
+touch root/components/navigation/navbar/index.tsx
+```
+
+## Step 3: Implement the Navbar Component
+
+Open `index.tsx` and add the following code to create a simple Navbar component:
+
+```tsx
+// root/components/navigation/navbar/index.tsx
+
+import Image from "next/image";
+import Link from "next/link";
+import React from "react";
+
+import ThemeChanger from "./Theme";
+
+const Navbar = () => {
+  return (
+    <>
+      <nav className="flex-between background-light900_dark200 fixed z-50 w-full gap-5 p-6 shadow-light-300 dark:shadow-none sm:px-12">
+        <Link href="/" className="flex items-center gap-1">
+          <Image
+            src="/images/site-logo.svg"
+            width={23}
+            height={23}
+            alt="DevFlow logo"
+          />
+          <p className="h2-bold font-space-grotesk text-dark-100 dark:text-light-900 max-sm:hidden">
+            DEV<span className="text-primary-500">FLOW</span>
+          </p>
+        </Link>
+
+        <p>Global Search</p>
+
+        <div className="flex-between gap-5">
+          <ThemeChanger />
+        </div>
+      </nav>
+    </>
+  );
+};
+
+export default Navbar;
+```
+
+## Step 4: Import and Use the Navbar Component
+
+To use the Navbar component in a page or layout, import it in your desired file:
+
+```tsx
+// Example: root/Layout.tsx
+
+import Navbar from "@/components/navigation/navbar";
+```
+
+### Summary
+
+- Folder path: `root/components/navigation/navbar/`
+
+- Component file: `index.tsx`
+
+- Import path: `@/components/navigation/navbar`
+
+This setup ensures a clean, modular structure for your Navbar component.
+
+---
+
+---
+
+# 12. Project Directory Organization
+
+This documentation explains how to structure your `Next.js` app by organizing it into `(root)` and `(auth)` folders inside the `app` directory. We’ll also move the `page.tsx` file to the `(root)` directory and create `layout.tsx` files in both `(root)` and `(auth)` folders.
+
+## Step 1: Create Group Folders
+
+Inside the `app` directory, create `(root)` and `(auth)` folders to separate different parts of your application:
+
+```bash
+app
+├── (root)
+└── (auth)
+```
+
+## Step 2: Move `page.tsx` to the `(root)` Directory
+
+If you already have a `page.tsx` file in the `app` directory, move it into the `(root)` folder to serve as the main landing page for the application:
+
+```bash
+mv app/page.tsx app/root/page.tsx
+```
+
+## Step 3: Create `layout.tsx` for Each Group
+
+Each group (i.e., `(root)` and `(auth)`) should have its own `layout.tsx` file to define a specific layout structure.
+
+```tsx
+// layout.tsx
+
+import { ReactNode } from "react";
+
+const AuthLayout = ({ children }: { children: ReactNode }) => {
+  return <main>{children}</main>;
+};
+
+export default AuthLayout;
+```
+
+### Summary of the New Directory Structure
+
+After following these steps, your project structure should look like this:
+
+```bash
+app
+├── (root)
+│   ├── page.tsx # Main page for the root layout
+│   └── layout.tsx # Layout for root pages
+├── (auth)
+│   ├── sign-in
+│   ├── sign-up
+│   └── layout.tsx # Layout for auth pages
+└── layout.tsx # Layout for all app pages
+```
+
+### Usage
+
+- The `(root)/layout.tsx` file applies to all pages in the `(root)` folder, providing a header and main section for the main content.
+
+- The `(auth)/layout.tsx` file applies to all pages in the `(aut)`h folder, offering a similar structure customized for authentication pages.
+
+This setup helps keep the layout and organization of your application modular and maintainable.
+
+---
