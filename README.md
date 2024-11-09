@@ -1064,3 +1064,689 @@ app
 This setup helps keep the layout and organization of your application modular and maintainable.
 
 ---
+
+---
+
+# 13. Setting up `Auth.js`
+
+## Step 1. Installing Auth.js
+
+Start by installing the appropriate package for your framework.
+
+```bash
+npm install next-auth@beta
+```
+
+Installing `@auth/core` is not necessary, as a user you should never have to interact with `@auth/core`.
+
+## Step 2. Setup Environment
+
+The only environment variable that is mandatory is the `AUTH_SECRET`. This is a random value used by the library to encrypt `tokens` and `email` verification hashes. (See Deployment to learn more). You can generate one via the official `Auth.js` CLI running:
+
+```bash
+npx auth secret
+```
+
+This will also add it to your `.env` file, respecting the framework conventions (eg.: `Next.js`’ `.env.local`).
+
+## Step 3. Configure
+
+Next, create the `auth.ts` config file in root directory. This is where you can control the behavior of the library and specify custom authentication logic, adapters, etc. We recommend all frameworks to create an `auth.ts` file in the project. In this file we’ll pass in all the options to the framework specific initialization function and then export the route `handler(s)`, `signin` and `signout` methods, and more.
+
+You can name this file whatever you want and place it wherever you like, these are just conventions we’ve come up with.
+
+## Step 4. Create a new `auth.ts`
+
+Start by creating a new `auth.ts` file at the `root` of your app with the following content.
+
+```ts
+//  ./auth.ts
+
+import NextAuth from "next-auth";
+import GitHub from "next-auth/providers/github";
+import Google from "next-auth/providers/google";
+
+export const { handlers, signIn, signOut, auth } = NextAuth({
+  providers: [GitHub, Google],
+});
+```
+
+## Step 5. Add a Route Handler
+
+Add a Route Handler under `/app/api/auth/[...nextauth]/route.ts`.
+
+This file must be an App Router Route Handler, however, the rest of your app can stay under page/ if you’d like.
+
+```ts
+./app/api/auth/[...nextauth]/route.ts
+
+import { handlers } from "@/auth"; // Referring to the auth.ts we just created
+export const { GET, POST } = handlers;
+```
+
+## Step 6. Add optional Middleware
+
+Add optional Middleware i.e. `middleware.ts` in `root` directory to keep the session alive, this will update the session expiry every time its called.
+
+```ts
+./middleware.ts
+
+export { auth as middleware } from "@/auth"
+```
+
+## Setup Authentication Methods
+
+With that, the basic setup is complete! Next we’ll setup the first authentication methods and fill out that providers array.
+
+---
+
+---
+
+# 14. OAuth
+
+Auth.js comes with over 80 providers preconfigured. We constantly test ~20 of the most popular ones, by having them enabled and actively used in our example application. You can choose a provider below to get a walk-through, or find your provider of choice in the sidebar for further details.
+
+## Step 1. GitHub
+
+Register OAuth App in GitHub's dashboard.
+
+First you have to setup an OAuth application on the GitHub developers dashboard.
+
+- **Note**: If you haven’t used OAuth before, you can read the beginners step-by-step guide on how to setup "Sign in with GitHub" with Auth.js.
+
+When registering an OAuth application on GitHub, they will all ask you to enter your application’s callback URL. See below for the callback URL you must insert based on your framework.
+
+## Step 2.Callback URL
+
+```
+[origin]/api/auth/callback/github
+
+// eg. http://localhost/api/auth/callback/github
+```
+
+Many providers only allow you to register one callback URL at a time. Therefore, if you want to have an active OAuth configuration for development and production environments, you'll need to register a second OAuth app in the GitHub dashboard for the other environment(s).
+
+## Step 3. Setup Environment Variables
+
+Once registered, you should receive a `Client ID` and `Client Secret`. Add those in your application environment file:
+
+```
+.env.local
+
+AUTH_GITHUB_ID={CLIENT_ID}
+AUTH_GITHUB_SECRET={CLIENT_SECRET}
+```
+
+Auth.js will automatically pick up these if formatted like the example above. You can also use a different name for the environment variables if needed, but then you’ll need to pass them to the provider manually.
+
+## Step 4. Setup Provider
+
+Let’s enable GitHub as a sign in option in our Auth.js configuration. You’ll have to import the `GitHub` provider from the package and pass it to the `providers` array we setup earlier in the Auth.js config file:
+
+In `Next.js` we recommend setting up your configuration in a file in the root of your repository, like at `auth.ts`.
+
+```ts
+./auth.ts
+
+import NextAuth from "next-auth";
+import GitHub from "next-auth/providers/github";
+import Google from "next-auth/providers/google";
+
+export const { handlers, signIn, signOut, auth } = NextAuth({
+  providers: [GitHub, Google],
+});
+```
+
+## Step 5. Add Signin Button
+
+Next, we can add a signin button somewhere in your application like the Navbar. It will trigger `Auth.js` sign in when clicked.
+
+```tsx
+./components/sign-in.tsx
+
+"use client";
+
+import Image from "next/image";
+import { signIn } from "next-auth/react";
+import React from "react";
+
+import ROUTES from "@/constants/routes";
+import { toast } from "@/hooks/use-toast";
+
+import { Button } from "../ui/button";
+
+const SocialAuthForm = () => {
+  const handleSignIn = async (provider: "github" | "google") => {
+    try {
+      await signIn(provider, {
+        callbackUrl: ROUTES.HOME,
+        redirect: false,
+      });
+    } catch (error) {
+      toast({
+        title: "Sign-in failed",
+        description:
+          error instanceof Error
+            ? error.message
+            : "An error occurred during sign-in",
+        variant: "destructive",
+      });
+    }
+  };
+
+  return (
+    <div className="mt-6 flex flex-wrap gap-2.5">
+      <Button
+        className="background-dark400_light900 body-medium text-dark200_light800 min-h-12 flex-1 rounded-2 px-4 py-3.5"
+        onClick={() => handleSignIn("github")}
+      >
+        <Image
+          src="icons/github.svg"
+          alt="Github Logo"
+          width={20}
+          height={20}
+          className="invert-colors mr-2.5 object-contain"
+        />
+        <span>Login with Github</span>
+      </Button>
+    </div>
+  );
+};
+
+export default SocialAuthForm;
+
+
+```
+
+## Step 6. Create `routes.ts`
+
+Create a `routes.ts` file in `constants` directory in `root` for easy routing
+
+```ts
+const ROUTES = {
+  HOME: "/",
+  SIGN_IN: "/sign-in",
+  SIGN_UP: "/sign-up",
+};
+
+export default ROUTES;
+```
+
+Now you can use it like: `ROUTES.SIGN_UP`
+
+## Ship it!
+
+Click the “`Login in with GitHub`" button and if all went well, you should be redirected to GitHub and once authenticated, redirected back to the app!
+
+You can build your own `Signin`, `Signout`, etc. pages to match the style of your application, check out session management for more details.
+
+---
+
+---
+
+# 15. `ShadCN` Form Documentation
+
+## Step 1: Install `ShadCN` form component
+
+```bash
+npx shadcn@latest add form
+
+npx shadcn@latest add input
+```
+
+## Step 2: Create a form schema
+
+Define the shape of your form using a Zod schema in a new file inside `lib` directory `validations.ts`. You can read more about using Zod in the Zod documentation.
+
+```ts
+import { number, z } from "zod";
+export const SignInSchema = z.object({
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Please provide a valid email address"),
+
+  password: z
+    .string()
+    .min(6, "Password must be at least 6 characters")
+    .max(100, "Password cannot exceed 100 characters"),
+});
+
+export const SignUpSchema = z.object({
+  username: z
+    .string()
+    .min(3, { message: "Username must be at least 3 characters long." })
+    .max(30, { message: "Username cannot exceed 30 characters." })
+    .regex(/^[a-zA-Z0-9_]+$/, {
+      message: "Username can only contain letters, numbers, and underscores.",
+    }),
+
+  name: z
+    .string()
+    .min(1, { message: "Name is required." })
+    .max(50, { message: "Name cannot exceed 50 characters." })
+    .regex(/^[a-zA-Z\s]+$/, {
+      message: "Name can only contain letters and spaces.",
+    }),
+
+  email: z
+    .string()
+    .min(1, { message: "Email is required." })
+    .email({ message: "Please provide a valid email address." }),
+
+  password: z
+    .string()
+    .min(6, { message: "Password must be at least 6 characters long." })
+    .max(100, { message: "Password cannot exceed 100 characters." })
+    .regex(/[A-Z]/, {
+      message: "Password must contain at least one uppercase letter.",
+    })
+    .regex(/[a-z]/, {
+      message: "Password must contain at least one lowercase letter.",
+    })
+    .regex(/[0-9]/, { message: "Password must contain at least one number." })
+    .regex(/[^a-zA-Z0-9]/, {
+      message: "Password must contain at least one special character.",
+    }),
+});
+```
+
+## Step 3: Creating a Form with ShadCN
+
+1. Create a new component for your form, e.g., `components/AuthForm.js`.
+
+2. Import the necessary components from `ShadCN`.
+
+Here’s a example of a form with text input, select, and a submit button:
+
+```tsx
+"use client";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
+import {
+  DefaultValues,
+  FieldValues,
+  Path,
+  SubmitHandler,
+  useForm,
+} from "react-hook-form";
+import { z, ZodType } from "zod";
+
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import ROUTES from "@/constants/routes";
+
+interface AuthFormProps<T extends FieldValues> {
+  schema: ZodType<T>;
+  defaultValues: T;
+  onSubmit: (data: T) => Promise<{ success: boolean }>;
+  formType: "SIGN_IN" | "SIGN_UP";
+}
+
+const AuthForm = <T extends FieldValues>({
+  formType,
+  schema,
+  defaultValues,
+  onSubmit,
+}: AuthFormProps<T>) => {
+  // 1. Define your form.
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
+    defaultValues: defaultValues as DefaultValues<T>,
+  });
+
+  // 2. Define a submit handler.
+  const handleSubmit: SubmitHandler<T> = async () => {
+    // TODO : Authentication of user
+  };
+
+  const buttonText = formType === "SIGN_IN" ? "Sign In" : "Sign Up";
+
+  // 3. Form field
+  return (
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="mt-10 space-y-6"
+      >
+        {Object.keys(defaultValues).map((field) => (
+          <FormField
+            key={field}
+            control={form.control}
+            name={field as Path<T>}
+            render={({ field }) => (
+              <FormItem className="flex w-full flex-col gap-1">
+                <FormLabel className="paragraph-medium text-dark400_light700">
+                  {field.name === "email"
+                    ? "Email Address"
+                    : field.name.charAt(0).toUpperCase() + field.name.slice(1)}
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    required
+                    type={field.name === "password" ? "password" : "text"}
+                    {...field}
+                    className="paragraph-regular background-light900_dark300 light-border-2 text-dark300_light700 no-focus min-h-12 rounded-1.5 border"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        ))}
+        <Button
+          disabled={form.formState.isSubmitting}
+          className="primary-gradient paragraph-medium min-h-12 w-full rounded-2 px-4 py-3 font-inter !text-light-900"
+        >
+          {form.formState.isSubmitting
+            ? buttonText === "Sign In"
+              ? "Signing In..."
+              : "Signing Up..."
+            : buttonText}
+        </Button>
+
+        {formType === "SIGN_IN" ? (
+          <p>
+            Don&apos;t have an account?{" "}
+            <Link
+              href={ROUTES.SIGN_UP}
+              className="paragraph-semibold primary-text-gradient"
+            >
+              Sign Up
+            </Link>
+          </p>
+        ) : (
+          <p>
+            Already have an account?{" "}
+            <Link
+              href={ROUTES.SIGN_IN}
+              className="paragraph-semibold primary-text-gradient"
+            >
+              Sign In
+            </Link>
+          </p>
+        )}
+      </form>
+    </Form>
+  );
+};
+
+export default AuthForm;
+```
+
+## Step 4: Use the Form Component in a Page
+
+In your Next.js project, navigate to the page where you want to use the form (e.g., `app/(auth)/sign-up/page.tsx` and import your `AuthForm` component:
+
+```tsx
+"use client";
+
+import AuthForm from "@/components/forms/AuthForm";
+import { SignUpSchema } from "@/lib/validations";
+
+const SignUp = () => {
+  return (
+    <AuthForm
+      formType="SIGN_UP"
+      schema={SignUpSchema}
+      defaultValues={{ email: "", password: "", name: "", username: "" }}
+      onSubmit={(data) => Promise.resolve({ success: true, data })}
+    />
+  );
+};
+
+export default SignUp;
+```
+
+## Conclusion
+
+With these steps, you have a fully functional form using `ShadCN's` latest components in your `Next.j`s project! You can further customize this form by adding additional fields, validation logic, and integrating it with a backend.
+
+---
+
+---
+
+# 16. Create the Mobile Navigation Using `ShadCN`
+
+## Step 1: Install ShadCN Components
+
+First, install ShadCN's `sheet` component in your project:
+
+```bash
+npx shadcn@latest add sheet
+```
+
+## Step 2: Create the Mobile Navigation with `ShadCN's` Sheet
+
+- Create a new component for the mobile menu, e.g., `components\navigation\navbar\MobileNavigation.tsx`.
+
+- Import the necessary `ShadCN` components.
+
+Here’s a basic example of a mobile menu using `Sheet`:
+
+```tsx
+import Image from "next/image";
+import Link from "next/link";
+
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  // SheetDescription,
+  // SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import ROUTES from "@/constants/routes";
+
+import NavLinks from "./NavLinks";
+
+const MobileNavigation = () => {
+  return (
+    <Sheet>
+      <SheetTrigger asChild>
+        <Image
+          src="/icons/hamburger.svg"
+          height={34}
+          width={34}
+          alt="Menu"
+          className="invert-colors sm:hidden"
+        />
+      </SheetTrigger>
+      <SheetContent
+        side="left"
+        className="background-light900_dark200 border-none"
+      >
+        <SheetTitle className="hidden">Navigation</SheetTitle>
+        <Link href="/" className="flex items-center gap-1">
+          <Image
+            src="/images/site-logo.svg"
+            height={23}
+            width={23}
+            alt="Logo"
+          />
+          <p className="h2-bold font-space-grotesk text-dark-100 dark:text-light-900">
+            Dev<span className="text-primary-500">Flow</span>
+          </p>
+        </Link>
+
+        <div className="no-scrollbar flex  h-[calc(100vh-80px)] flex-col justify-between overflow-y-auto">
+          <SheetClose asChild>
+            <section className="flex h-full flex-col gap-6 pt-10">
+              // Add NavLinks for reusability
+              <NavLinks isMobileNav />
+            </section>
+          </SheetClose>
+
+          <div className="flex flex-col gap-3">
+            <SheetClose asChild>
+              <Link href={ROUTES.SIGN_IN}>
+                <Button className="small-medium btn-secondary min-h-[41px] w-full rounded-lg px-4 py-3 shadow-none">
+                  <span className="primary-text-gradient">Log In</span>
+                </Button>
+              </Link>
+            </SheetClose>
+
+            <SheetClose asChild>
+              <Link href={ROUTES.SIGN_UP}>
+                <Button className="small-medium light-border-2 btn-tertiary text-dark400_light900 min-h-[41px] w-full rounded-lg border px-4 py-3 shadow-none">
+                  Sign Up
+                </Button>
+              </Link>
+            </SheetClose>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+};
+
+export default MobileNavigation;
+```
+
+## Step 3: Create Constant for `links`, `labels` and `routes`
+
+- Create new file in `constants` folder namely `sidebarLinks.ts`
+
+eg: `sidebarLinks.ts`
+
+```ts
+export const sidebarLinks = [
+  {
+    imgURL: "/icons/home.svg",
+    route: "/",
+    label: "Home",
+  },
+  {
+    imgURL: "/icons/users.svg",
+    route: "/community",
+    label: "Community",
+  },
+  {
+    imgURL: "/icons/star.svg",
+    route: "/collection",
+    label: "Collections",
+  },
+  {
+    imgURL: "/icons/suitcase.svg",
+    route: "/jobs",
+    label: "Find Jobs",
+  },
+  {
+    imgURL: "/icons/tag.svg",
+    route: "/tags",
+    label: "Tags",
+  },
+  {
+    imgURL: "/icons/user.svg",
+    route: "/profile",
+    label: "Profile",
+  },
+  {
+    imgURL: "/icons/question.svg",
+    route: "/ask-question",
+    label: "Ask a question",
+  },
+];
+```
+
+## Step 4: For Multiple Navigation Links Create `NavLinks.tsx`
+
+- For multiple links and reusability purpose create new file `NavLinks.tsx` with predefined structure of elements.
+
+- Import `sidebarLinks` in page
+
+eg: `NavLinks.tsx`
+
+```tsx
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import React from "react";
+
+import { SheetClose } from "@/components/ui/sheet";
+import { sidebarLinks } from "@/constants/sidebarLinks";
+import { cn } from "@/lib/utils";
+
+const NavLinks = ({ isMobileNav = false }: { isMobileNav?: boolean }) => {
+  const pathName = usePathname();
+  const userId = "pravin";
+
+  return (
+    <>
+      {sidebarLinks.map((item) => {
+        const isActive =
+          (pathName.includes(item.route) && item.route.length > 1) ||
+          pathName === item.route;
+
+        if (item.route === "/profile") {
+          if (userId) return (item.route = `${item.route}/${userId}`);
+          else return null;
+        }
+
+        const LinkComponents = (
+          <Link
+            href={item.route}
+            key={item.label}
+            className={cn(
+              isActive
+                ? "primary-gradient rounded-lg text-light-900"
+                : "text-dark300_light900",
+              "flex items-center justify-start gap-4 bg-transparent p-4"
+            )}
+          >
+            <Image
+              src={item.imgURL}
+              width={20}
+              height={20}
+              alt={item.label}
+              className={cn({ "invert-colors": !isActive })}
+            />
+            <p
+              className={cn(
+                isActive ? "base-bold" : "base-medium",
+                !isMobileNav && "max-lg:hidden"
+              )}
+            >
+              {item.label}
+            </p>
+          </Link>
+        );
+
+        return isMobileNav ? (
+          <SheetClose asChild key={item.route}>
+            {LinkComponents}
+          </SheetClose>
+        ) : (
+          <React.Fragment key={item.route}>{LinkComponents}</React.Fragment>
+        );
+      })}
+    </>
+  );
+};
+
+export default NavLinks;
+```
+
+## Step 5: Use the Mobile Navigation in a Page
+
+- Import `NavLinks` in `MobileNavigation` file
+
+- Navigate to the page where you want to use the mobile menu (e.g., `navbar/index.js`) and import your `MobileNavigation` component:
+
+---
+
+---

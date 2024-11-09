@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
+import MobileNavigation from "./MobileNavigation";
 import ThemeChanger from "./Theme";
 
 const Navbar = () => {
@@ -16,7 +17,7 @@ const Navbar = () => {
             alt="DevFlow logo"
           />
           <p className="h2-bold font-space-grotesk text-dark-100 dark:text-light-900 max-sm:hidden">
-            DEV<span className="text-primary-500">FLOW</span>
+            Dev<span className="text-primary-500">Flow</span>
           </p>
         </Link>
 
@@ -24,6 +25,8 @@ const Navbar = () => {
 
         <div className="flex-between gap-5">
           <ThemeChanger />
+
+          <MobileNavigation />
         </div>
       </nav>
     </>
